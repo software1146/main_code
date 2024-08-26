@@ -1,3 +1,4 @@
+#필요한 모듈 import
 import sys
 import matplotlib.pyplot as plt
 import numpy as np
@@ -6,7 +7,7 @@ from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import Qt
 from io import BytesIO
 
-
+#바코드의 패턴 정의
 left_odd = {
     '0': '0001101', '1': '0011001', '2': '0010011',
     '3': '0111101', '4': '0100011', '5': '0110001',
@@ -31,6 +32,7 @@ oddeven = [
     [0,1,0,1,1,0],[0,1,1,0,1,0]
 ]
 
+#바코드 이미지 시각화 함수
 def generate_ean13_barcode(barcode_number):
     first_num = int(barcode_number[0])
     barcode_list = []
@@ -50,7 +52,7 @@ def generate_ean13_barcode(barcode_number):
     return barcode_string
 
 def plot_barcode(barcode_string):
-    plt.figure(figsize=(12, 2))
+    plt.figure(figsize=(6, 1))
     plt.bar(range(len(barcode_string)), [int(bit) for bit in barcode_string], width=1, color='black')
     plt.axis('off')
     plt.xticks([])
@@ -64,6 +66,7 @@ def plot_barcode(barcode_string):
     
     return buf
 
+#바코드 넘버의 유효성 검증, 체크 디지트의 생성
 def check_digital_verification(barcode):
     if len(barcode) != 13 or not barcode.isdigit():
         raise ValueError("EAN-13 바코드는 13자리 숫자입니다.다시 알맞게 수정하세요.")
@@ -72,18 +75,21 @@ def check_digital_verification(barcode):
     check_digit = (10 - (total_sum % 10)) %10
     return check_digit
 
+#EAN-13바코드 넘버의 유효성 검증 함수에 의거하여 결과값을 반환
 def barcode_verification(barcode):
     if len(barcode) != 13 or not barcode.isdigit():
         return False
     check_digit = check_digital_verification(barcode)
     return check_digit == int(barcode[-1])
 
+#class상속 및 초기화
 class BarcodeApp(QWidget):
     def __init__(self):
         super().__init__()
 
         self.initUI()
 
+#GUI인터페이스의 구성
     def initUI(self):
         self.setWindowTitle('EAN-13 바코드 생성기')
         
@@ -108,6 +114,7 @@ class BarcodeApp(QWidget):
         
         self.setLayout(self.layout)
     
+    #바코드의 입력값을 불러오는 함수
     def generate_barcode(self):
         barcode_number = self.text_input.text().strip()
         
@@ -121,6 +128,7 @@ class BarcodeApp(QWidget):
         else:
             self.image_label.setText("유효하지 않은 EAN-13바코드 입니다.")
     
+    #생성된 바코드를 이미지로 저장
     def save_barcode_image(self):
         if hasattr(self, 'barcode_number'):
             barcode_string = generate_ean13_barcode(self.barcode_number)
